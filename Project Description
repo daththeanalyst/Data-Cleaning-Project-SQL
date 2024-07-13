@@ -1,0 +1,3 @@
+This SQL data cleaning project involves several steps to clean and standardize a dataset on layoffs. Key steps include removing duplicates, 
+standardizing data formats, handling null and blank values, and ultimately ensuring the dataset is clean and ready for analysis.
+The process involves creating staging tables, using common table expressions (CTEs), and updating or deleting problematic entries.
