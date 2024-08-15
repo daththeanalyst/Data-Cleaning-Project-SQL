@@ -52,4 +52,43 @@ UPDATE layoffs_staging2
 SET industry = 'Crypto'
 WHERE industry LIKE 'Crypto%';
 ```
+Similarly, inconsistent country names were fixed:
 
+```sql
+UPDATE layoffs_staging2
+SET country = TRIM(TRAILING '.' FROM country)
+WHERE country LIKE 'United States%';
+```
+The date column was also standardized by converting string representations into the DATE format:
+```sql
+UPDATE layoffs_staging2
+SET `date` = STR_TO_DATE(`date`, '%m/%d/%Y');
+
+ALTER TABLE layoffs_staging2
+MODIFY COLUMN `date` DATE;
+```
+
+## 4. Handling Null and Blank Values
+
+Null and blank values were identified and populated where possible, particularly in the industry column. For instance, missing industries were filled by joining records from the same company:
+
+```sql
+UPDATE layoffs_staging2 t1
+JOIN layoffs_staging2 t2 ON t1.company = t2.company
+SET t1.industry = t2.industry
+WHERE t1.industry IS NULL AND t2.industry IS NOT NULL;
+```
+
+## 5. Column Removal
+
+Columns that were either incomplete or no longer necessary were removed. For example, rows with null or blank values in the total_laid_off and percentage_laid_off columns were deleted, and the row_num column was dropped:
+
+```sql
+DELETE FROM layoffs_staging2 WHERE total_laid_off IS NULL AND percentage_laid_off IS NULL;
+
+ALTER TABLE layoffs_staging2 DROP COLUMN row_num;
+```
+
+## Conclusion
+
+This project provided a comprehensive approach to cleaning and standardizing a dataset, preparing it for further analysis. By following best practices such as staging, duplication checks, and standardization, we ensured the data was consistent and reliable.
